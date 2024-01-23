@@ -1,0 +1,19 @@
+{
+	"type": "postgres",
+	"host": "localhost",
+	"port": 5432,
+	"password": "admin1234",
+	"database": "chat-app",
+	"synchronize": true,
+	"logging": false,
+	"entities": [
+	  "src/entity/**/*.ts"
+	],
+	"migrations": [
+	  "src/migration/**/*.ts"
+	],
+	"subscribers": [
+	  "src/subscriber/**/*.ts"
+	]
+   }
+   
