@@ -67,7 +67,7 @@ export const registerUser = async (
 export const loginUser = async (
 	email: string,
 	password: string,
-): Promise<{ statusCode: number; message: string; token?: string }> => {
+): Promise<{ statusCode: number; message: string; user: any, token?: string }> => {
 	try {
 		const userRepository = dataSource.getRepository(User);
 		const user = await userRepository
@@ -77,22 +77,33 @@ export const loginUser = async (
 			.getOne();
 
 		if (!user) {
-			return { statusCode: 401, message: "Invalid email or password" };
+			return { statusCode: 401, message: "Invalid email or password", user: null };
 		}
 
 		const passwordMatch = await bcrypt.compare(password, user.password);
 
 		if (!passwordMatch) {
-			return { statusCode: 401, message: "Invalid email or password" };
+			return { statusCode: 401, message: "Invalid email or password", user: null };
+		}
+
+		if (user.status !== "active") {
+			return { statusCode: 401, message: "User is not active", user: null };
 		}
 
 		const token = jwt.sign({ userId: user.id }, JWT_SECRET ?? "", {
-			expiresIn: "10h", // To-Do: Change value in production
+			expiresIn: "10h", 
 		});
 
-		return { statusCode: 200, message: "Login successful", token };
+		const userOutput = {
+			id: user.id,
+			username: user.username,
+			email: user.email,
+			role: user.role,
+		}
+
+		return { statusCode: 200, message: "Login successful", user: userOutput, token };
 	} catch (error) {
 		console.error("Error executing login", error);
-		return { statusCode: 500, message: "Internal server error" };
+		return { statusCode: 500, message: "Internal server error", user: null };
 	}
 };

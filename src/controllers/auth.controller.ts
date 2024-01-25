@@ -35,7 +35,7 @@ export async function login(req: Request, res: Response) {
                 .json({ error: "Email and password are required fields" });
         }
 
-        const { statusCode, message, token } = await loginUser(email, password);
+        const { statusCode, message,user, token } = await loginUser(email, password);
 
         res.cookie("jwt", token, {
             httpOnly: true,
@@ -43,7 +43,7 @@ export async function login(req: Request, res: Response) {
             secure: false, // TODO: Set to true when using HTTPS
         });
 
-        return res.status(statusCode).json({ message, success: true });
+        return res.status(statusCode).json({ message, success: true, user });
     } catch (error) {
         return res.status(500).json({ message: 'Error logging in.', error });
     }

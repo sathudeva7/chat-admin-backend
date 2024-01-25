@@ -12,7 +12,7 @@ export async function getUserByIdController(req: Request, res: Response) {
     try {
         const { statusCode, message, user } = await getUserById(id);
 
-        return res.status(statusCode).json({ message, user });
+        return res.status(statusCode).json({ message,success: true, user });
     } catch (error) {
         return res.status(500).json({ message: 'Error retrieving user.', error });
     }

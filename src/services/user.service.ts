@@ -10,12 +10,27 @@ export const getUserById = async (
 	message: string;
 }> => {
 	try {
-		const userRepository = dataSource.getRepository(User);
-		const user = await userRepository.createQueryBuilder("department")
-			.leftJoinAndSelect("department.userDepartments", "userDepartment")
-			.leftJoinAndSelect("userDepartment.department", "user")
-			.where("user.id = :id", { id })
-			.getOne();
+		// const userRepository = dataSource.getRepository(User);
+		
+
+const user = await dataSource.query(`
+    SELECT 
+        "user"."id" AS user_id,
+        "user"."username" AS username,
+        "user"."email" AS email,
+        json_agg(json_build_object('id', "department"."id", 'name', "department"."name")) AS departments
+    FROM 
+        "user"
+    JOIN 
+        "user_department" ON "user"."id" = "user_department"."userId"
+    JOIN 
+        "department" ON "user_department"."departmentId" = "department"."id"
+    WHERE 
+        "user"."id" = $1
+    GROUP BY 
+        "user"."id"
+`, [id]);
+
 
 		if (!user) {
 			return {
