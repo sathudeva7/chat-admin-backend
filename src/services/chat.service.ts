@@ -1,5 +1,6 @@
 import { dataSource } from "../configs/dbConfig";
 import { Chat } from "../entity/Chat";
+import { Message } from "../entity/Message";
 import { User } from "../entity/User";
 
 export const getChatsByDepartmentService = async (
@@ -54,6 +55,7 @@ export const assignChatToAgentService = async (
 				},
 			});
 			chat.representative = representative;
+			chat.status = "Inprog";
 			await chatRepository.save(chat);
 		}
 
@@ -61,6 +63,32 @@ export const assignChatToAgentService = async (
 			statusCode: 201,
 			chat: chat,
 			message: "Chat assigned to representative successfully",
+		};
+	} catch (err) {
+		console.error("Error getting Group", err);
+		throw new Error("Error getting Group");
+	}
+}
+
+export const getAllMessagesByChatService = async (
+	chatId: number
+): Promise<{
+	statusCode: number;
+	messages?: Message[] | null;
+	message: string;
+}> => {
+	try {
+		const messageRepository = dataSource.getRepository(Message);
+		const allMessages = await messageRepository.find({
+			where: {
+				chat: { id: chatId },
+			}
+		});
+
+		return {
+			statusCode: 201,
+			messages: allMessages,
+			message: "All Chat messages fetched successfully",
 		};
 	} catch (err) {
 		console.error("Error getting Group", err);
