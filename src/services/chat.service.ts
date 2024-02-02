@@ -1,5 +1,6 @@
 import { dataSource } from "../configs/dbConfig";
 import { Chat } from "../entity/Chat";
+import { Department } from "../entity/Department";
 import { Message } from "../entity/Message";
 import { User } from "../entity/User";
 
@@ -89,6 +90,44 @@ export const getAllMessagesByChatService = async (
 			statusCode: 201,
 			messages: allMessages,
 			message: "All Chat messages fetched successfully",
+		};
+	} catch (err) {
+		console.error("Error getting Group", err);
+		throw new Error("Error getting Group");
+	}
+}
+
+export const changeChatDepartmentService = async (
+	chatId: number,
+	deptId: number
+): Promise<{
+	statusCode: number;
+	message: string;
+}> => {
+	try {
+		const chatRepository = dataSource.getRepository(Chat);
+		const chat = await chatRepository.findOne({
+			where: {
+				id: chatId,
+			},
+			relations: ["department", "customer", "representative", "messages"],
+		});
+		const departmentRepository = dataSource.getRepository(Department);
+		const department = await departmentRepository.findOne({
+			where: {
+				id: deptId,
+			},
+		});
+
+		if (chat) {
+			chat.department = department;
+			chat.representative = null;
+			await chatRepository.save(chat);
+		}
+
+		return {
+			statusCode: 201,
+			message: "Chat department changed successfully",
 		};
 	} catch (err) {
 		console.error("Error getting Group", err);

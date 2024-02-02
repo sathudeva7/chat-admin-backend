@@ -16,7 +16,7 @@ const http = require('http');
 const socketHandler = require('./socket/socketHandler');
 
 const app = express();
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }))
+app.use(cors({ credentials: true, origin: "*" }))
 app.use(cookieParser());
 app.use(bodyParser.json());
 

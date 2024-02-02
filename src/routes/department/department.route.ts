@@ -8,6 +8,6 @@ import { requireAuth } from "../../controllers/auth.controller";
 const departmentRouter = express.Router();
 
 departmentRouter.post("/create",requireAuth, create);
-departmentRouter.get("/all",requireAuth, all);
+departmentRouter.get("/all", all);
 
 export default departmentRouter;

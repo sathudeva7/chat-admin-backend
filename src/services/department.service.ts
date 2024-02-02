@@ -1,4 +1,5 @@
 import { dataSource } from "../configs/dbConfig";
+import { Chat } from "../entity/Chat";
 import { Department } from "../entity/Department";
 
 export const createDepartment = async (
@@ -43,11 +44,31 @@ export const getAllDepartments = async (): Promise<{
    }> => {
 	try {
 	  const departmentRepository = dataSource.getRepository(Department);
+    const chatRepository = dataSource.getRepository(Chat);
+    const messageCount = await chatRepository.createQueryBuilder('chat')
+    .select('department.id', 'departmentId')
+    .addSelect('COUNT(chat.id)', 'chatCount')
+    .leftJoin('chat.department', 'department')
+    .where('chat.status IN (:...statuses)', { statuses: ['Init', 'Inprog'] })
+    .groupBy('department.id')
+    .getRawMany();
+
+    console.log(messageCount);
+  
+
 	  const allDepartments = await departmentRepository.find();
+
+    const output = allDepartments.map((department) => {
+      const chatCount = messageCount.find((item) => item.departmentId === department.id);
+      return {
+        ...department,
+        chatCount: chatCount ? chatCount.chatCount : 0,
+      };
+    });
    
 	  return {
 	    statusCode: 201,
-	    department: allDepartments,
+	    department: output,
 	    message: "All Departments fetched successfully",
 	  };
 	} catch (err) {

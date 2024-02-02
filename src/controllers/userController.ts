@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAllUsers, getUserById } from '../services/user.service';
+import { endChat, getAllUsers, getUserById } from '../services/user.service';
 
 // Get a user by ID
 export async function getUserByIdController(req: Request, res: Response) {
@@ -24,6 +24,21 @@ export async function getAllUsersController(req: Request, res: Response) {
         const { statusCode, message, users } = await getAllUsers();
 
         return res.status(statusCode).json({ message, users });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error retrieving users.', error });
+    }
+}
+
+export async function endChatController(req: Request, res: Response) {
+    try {
+        const id = parseInt(req.params.id, 10);
+
+	if (isNaN(id)) {
+	    return res.status(400).json({ message: 'Invalid chat ID.' });
+	}
+        const { statusCode, message } = await endChat(id);
+
+        return res.status(statusCode).json({ message });
     } catch (error) {
         return res.status(500).json({ message: 'Error retrieving users.', error });
     }
