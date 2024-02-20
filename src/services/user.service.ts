@@ -14,18 +14,15 @@ export const getUserById = async (
 		// const userRepository = dataSource.getRepository(User);
 		const chatRepository = dataSource.getRepository(Chat);
 		const messageCount = await chatRepository.createQueryBuilder('chat')
-  .select('department.id', 'departmentId')
-  .addSelect("SUM(CASE WHEN chat.status = 'Init' THEN 1 ELSE 0 END)", 'initChatCount')
-  .addSelect("SUM(CASE WHEN chat.status = 'Inprog' THEN 1 ELSE 0 END)", 'inprogChatCount')
-  .leftJoin('chat.department', 'department')
-  .where('chat.status IN (:...statuses)', { statuses: ['Init', 'Inprog'] })
-  .groupBy('department.id')
-  .getRawMany();
+			.select('department.id', 'departmentId')
+			.addSelect("SUM(CASE WHEN chat.status = 'Init' THEN 1 ELSE 0 END)", 'initChatCount')
+			.addSelect("SUM(CASE WHEN chat.status = 'Inprog' THEN 1 ELSE 0 END)", 'inprogChatCount')
+			.leftJoin('chat.department', 'department')
+			.where('chat.status IN (:...statuses)', { statuses: ['Init', 'Inprog'] })
+			.groupBy('department.id')
+			.getRawMany();
 
-  console.log(messageCount);
-
-
-const user = await dataSource.query(`
+		const user = await dataSource.query(`
     SELECT 
         "user"."id" AS user_id,
         "user"."username" AS username,
@@ -43,18 +40,18 @@ const user = await dataSource.query(`
         "user"."id"
 `, [id]);
 
-const output = user[0].departments.map((department: any) => {
-	    const departmentId = department.id;
-    const initChatCount = messageCount.find((item: any) => item.departmentId === departmentId)?.initChatCount;
-    const inprogChatCount = messageCount.find((item: any) => item.departmentId === departmentId)?.inprogChatCount;
-    return {
-	   ...department,
-	   initChatCount: initChatCount || 0,
-	   inprogChatCount: inprogChatCount || 0,
-    };
-});
+		const output = user[0].departments.map((department: any) => {
+			const departmentId = department.id;
+			const initChatCount = messageCount.find((item: any) => item.departmentId === departmentId)?.initChatCount;
+			const inprogChatCount = messageCount.find((item: any) => item.departmentId === departmentId)?.inprogChatCount;
+			return {
+				...department,
+				initChatCount: initChatCount || 0,
+				inprogChatCount: inprogChatCount || 0,
+			};
+		});
 
-  user[0].departments = output;
+		user[0].departments = output;
 
 
 		if (!user) {

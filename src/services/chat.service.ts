@@ -1,3 +1,4 @@
+import { Brackets } from "typeorm";
 import { dataSource } from "../configs/dbConfig";
 import { Chat } from "../entity/Chat";
 import { Department } from "../entity/Department";
@@ -5,7 +6,8 @@ import { Message } from "../entity/Message";
 import { User } from "../entity/User";
 
 export const getChatsByDepartmentService = async (
-	deptId: number
+	deptId: number,
+	userId: number
 ): Promise<{
 	statusCode: number;
 	chats?: Chat[] | null;
@@ -13,12 +15,21 @@ export const getChatsByDepartmentService = async (
 }> => {
 	try {
 		const chatRepository = dataSource.getRepository(Chat);
-		const allChats = await chatRepository.find({
-			where: {
-				department: { id: deptId },
-			},
-			relations: ["department", "customer", "representative", "messages"],
-		});
+		const allChats = await chatRepository.createQueryBuilder('chat')
+		.leftJoinAndSelect('chat.department', 'department')
+		.leftJoinAndSelect('chat.customer', 'customer')
+		.leftJoinAndSelect('chat.representative', 'representative')
+		.leftJoinAndSelect('chat.messages', 'messages')
+		.where('department.id = :deptId', { deptId })
+		.andWhere(new Brackets(qb => {
+		  qb.where('chat.status = :statusInit', { statusInit: 'Init' })
+		    .orWhere(new Brackets(subQb => {
+			 subQb.where('chat.status = :statusInprog', { statusInprog: 'Inprog' })
+				 .andWhere('representative.id = :userId', { userId });
+		    }));
+		}))
+		.getMany();
+	   
 
 		return {
 			statusCode: 201,

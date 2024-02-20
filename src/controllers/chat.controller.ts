@@ -4,9 +4,10 @@ import { assignChatToAgentService, changeChatDepartmentService, getAllMessagesBy
 // Create a new department
 export async function getChatsByDepartment(req: Request, res: Response) {
 	const deptId = parseInt(req.params.deptId, 10);
+    const userId = parseInt(req.params.userId, 10);
 
     try {
-        const { statusCode, message, chats } = await getChatsByDepartmentService(deptId);
+        const { statusCode, message, chats } = await getChatsByDepartmentService(deptId, userId);
 
         return res.status(statusCode).json({ message, chats });
     } catch (error) {

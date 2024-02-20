@@ -19,6 +19,14 @@ module.exports = (io, socket) => {
 
 	});
 
+	socket.on('isOnline', async (data) => {
+		io.to(chatId).emit('receiveOnline', data);
+	})
+
+	socket.on('isAgentOnline', async (data) => {
+		io.to(chatId).emit('receiveAgentOnline', data);
+	})
+
 	// Event when a user goes offline
 	socket.on('disconnect', () => {
 		console.log('user disconnected');

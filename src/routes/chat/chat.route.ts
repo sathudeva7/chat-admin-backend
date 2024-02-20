@@ -3,7 +3,7 @@ import { assignChatToAgent, changeChatDepartment, getChatsByDepartment, getMessa
 
 const chatRouter = express.Router();
 
-chatRouter.get("/department/:deptId", getChatsByDepartment); 
+chatRouter.get("/department/:deptId/:userId", getChatsByDepartment); 
 chatRouter.put("/assign/:chatId", assignChatToAgent);
 chatRouter.get("/messages/:chatId", getMessagesByChat);
 chatRouter.put("/changeDepartment/:chatId/:deptId", changeChatDepartment);
