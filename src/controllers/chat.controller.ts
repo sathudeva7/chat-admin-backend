@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { assignChatToAgentService, changeChatDepartmentService, getAllMessagesByChatService, getChatsByDepartmentService } from '../services/chat.service';
+import { assignChatToAgentService, changeChatDepartmentService, getAllMessagesByChatService, getChatsByDepartmentService, sendChatHistoryByEmail } from '../services/chat.service';
 
 // Create a new department
 export async function getChatsByDepartment(req: Request, res: Response) {
@@ -47,6 +47,19 @@ export async function changeChatDepartment(req: Request, res: Response) {
         const { statusCode, message } = await changeChatDepartmentService(chatId, deptId);
 
         return res.status(statusCode).json({ message });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error creating department.', error });
+    }
+}
+
+export const getChatHistory = async (req: Request, res: Response) => {
+    const chatId = parseInt(req.params.chatId, 10);
+    const { email } = req.body;
+
+    try {
+        const { statusCode, message, chat } = await sendChatHistoryByEmail(chatId, email);
+
+        return res.status(statusCode).json({ message, chat });
     } catch (error) {
         return res.status(500).json({ message: 'Error creating department.', error });
     }
