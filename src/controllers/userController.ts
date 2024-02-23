@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { endChat, getAllUsers, getUserById } from '../services/user.service';
+import { User } from '../entity/User';
+import { getAdminById } from '../services/admin.service';
 
 // Get a user by ID
 export async function getUserByIdController(req: Request, res: Response) {
@@ -10,9 +12,15 @@ export async function getUserByIdController(req: Request, res: Response) {
 	}
 
     try {
-        const { statusCode, message, user } = await getUserById(id);
+        const userData = req.user as User;
 
-        return res.status(statusCode).json({ message,success: true, user });
+        if (userData.role == 'admin') {
+            const { statusCode, message, user } = await getAdminById(id);
+            return res.status(statusCode).json({ message,success: true, user });
+        } else {
+            const { statusCode, message, user } = await getUserById(id);
+            return res.status(statusCode).json({ message,success: true, user });
+        }
     } catch (error) {
         return res.status(500).json({ message: 'Error retrieving user.', error });
     }

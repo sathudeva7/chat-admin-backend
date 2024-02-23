@@ -11,7 +11,6 @@ export const getUserById = async (
 	message: string;
 }> => {
 	try {
-		// const userRepository = dataSource.getRepository(User);
 		const chatRepository = dataSource.getRepository(Chat);
 		const messageCount = await chatRepository.createQueryBuilder('chat')
 			.select('department.id', 'departmentId')
